@@ -16,7 +16,7 @@ func runCooler (dur time.Duration, running *bool) {
 	targetTm := time.Now().Add(dur)
 
 	// pull the pin high
-	pin := rpio.Pin(16)
+	pin := rpio.Pin(20)
 	pin.Output()
 	pin.High()
 	pin.PullUp()
