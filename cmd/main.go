@@ -9,6 +9,7 @@ import (
 	"beer-cellah/models"
 
 	"github.com/jessevdk/go-flags"
+	"github.com/stianeikeland/go-rpio/v4"
 	
 	"fmt"
 	"log"
@@ -116,6 +117,11 @@ func main() {
 	// main app for everything
 	app := &app{
 		running: true,
+	}
+
+	err := rpio.Open()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// create our server server
