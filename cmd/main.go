@@ -153,6 +153,8 @@ func main() {
 
 	log.Println("exiting...")
 	wg.Wait()
+
+	rpio.Close()
 	
 	os.Exit(0) //final exit
 }

@@ -19,14 +19,15 @@ func runCooler (dur time.Duration, running *bool) {
 	pin := rpio.Pin(16)
 	pin.Output()
 	pin.High()
+	pin.PullUp()
 
 	for *running && targetTm.After(time.Now()) {
 
 		time.Sleep(time.Second)
 	}
 
-	pin.Low() // makr it low again
-	pin.PullOff()
+	pin.PullDown() // make it low again
+	// pin.PullOff()
 }
 
 func openDoor () {
