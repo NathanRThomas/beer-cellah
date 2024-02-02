@@ -103,7 +103,7 @@ func CheckAirTemp () float64 {
 
 	degC, err := strconv.Atoi(string(deg[1:]))
 	if err != nil {
-		log.Printf("CheckAirTemp: Not expected int: %s : %s\n", string(deg), string(data))
+		log.Printf("CheckAirTemp: Not expected int: %v : %s : %s\n", err, string(deg[1:]), string(data))
 		return 0
 	}
 
