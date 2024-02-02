@@ -95,7 +95,7 @@ func CheckAirTemp () float64 {
 		return 0
 	}
 
-	deg := data[len(data)-6:]
+	deg := data[len(data)-7:]
 	if deg[0] != '=' {
 		log.Printf("CheckAirTemp: Not expected body: %s :: %s\n", string(deg), string(data))
 		return 0
