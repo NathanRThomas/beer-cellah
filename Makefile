@@ -26,3 +26,8 @@ test:
 run: build
 run:
 	$(GOPATH)/beer-cellah
+
+deploy: build 
+deploy:
+	@systemctl restart beer
+	

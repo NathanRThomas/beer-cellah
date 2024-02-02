@@ -10,6 +10,7 @@ import (
 	"os"
 	"log"
 	"strconv"
+	"strings"
 )
 
 func runCooler (dur time.Duration, running *bool) {
@@ -101,9 +102,11 @@ func CheckAirTemp () float64 {
 		return 0
 	}
 
-	degC, err := strconv.Atoi(string(deg[1:]))
+	cString := strings.TrimSpace(string(deg[1:]))
+
+	degC, err := strconv.Atoi(cString)
 	if err != nil {
-		log.Printf("CheckAirTemp: Not expected int: %v : %s : %s\n", err, string(deg[1:]), string(data))
+		log.Printf("CheckAirTemp: Not expected int: %v : %s : %s\n", err, cString, string(data))
 		return 0
 	}
 
