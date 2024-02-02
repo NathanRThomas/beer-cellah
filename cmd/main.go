@@ -146,6 +146,10 @@ func main() {
 	wg.Add(1)
 	go models.MonitorButton (&wg, &app.running)
 
+	// create a ticker for monitoring air temp
+	wg.Add(1)
+	go models.MonitorTemp (&wg, &app.running, time.Tick(time.Minute))
+
 	log.Printf("%s v%s started on port %s\n", apiName, apiVersion, opts.Port) // going to always record this starting message
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed { // Error starting or closing listener:
 		log.Printf("ListenAndServe: %v", err) // we want to know if this failed for another reason

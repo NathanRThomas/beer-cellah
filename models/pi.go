@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"time"
 	"sync"
+	"os"
+	"log"
+	"strconv"
 )
 
 func runCooler (dur time.Duration, running *bool) {
@@ -28,20 +31,6 @@ func runCooler (dur time.Duration, running *bool) {
 	//pin.PullDown() // make it low again
 	pin.Low()
 	pin.PullOff()
-}
-
-func openDoor () {
-	fmt.Println ("opening door")
-
-	pin := rpio.Pin(18)
-	pin.Output()
-	pin.High() // make it high
-	time.Sleep(time.Second * 10)
-
-	pin.Low()
-	pin.PullOff()
-
-	fmt.Println ("close door")
 }
 
 func MonitorButton (wg *sync.WaitGroup, running *bool) {
@@ -67,7 +56,57 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 	}
 }
 
-// returns the air temp in degrees
+// monitors the temp to know when to run things
+func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time) {
+	defer wg.Done()
+
+	for {
+		select {
+		case <-c:
+			// we got something to do
+			tmp := CheckAirTemp()
+			fmt.Println("Checking air temp: ", tmp)
+			// check the temp, see if we need to do anything
+			if tmp > 70 { 
+
+				// we need to do something
+				runCooler(time.Minute, running)
+			}
+		default:
+			fmt.Println("not checking air temp")
+			time.Sleep(time.Second)
+		}
+
+		if *running == false {
+			return // we're done
+		}
+	}
+}
+
+// returns the air temp in degrees f
 func CheckAirTemp () float64 {
-	return 0
+	data, err := os.ReadFile("/sys/bus/w1/devices/28-3ce1d4434b6a/w1_slave")
+	if err != nil {
+		log.Printf("CheckAirTemp: %v\n", err)
+		return 0
+	}
+
+	if len(data) < 30 {
+		log.Printf("CheckAirTemp: didn't get a body: %s\n", string(data))
+		return 0
+	}
+
+	deg := data[len(data)-6:]
+	if deg[0] != '=' {
+		log.Printf("CheckAirTemp: Not expected body: %s\n", string(data))
+		return 0
+	}
+
+	degC, err := strconv.Atoi(string(deg[1:]))
+	if err != nil {
+		log.Printf("CheckAirTemp: Not expected int: %s : %s\n", string(deg), string(data))
+		return 0
+	}
+
+	return ((float64(degC) / 1000) * (9/5)) + 32
 }
