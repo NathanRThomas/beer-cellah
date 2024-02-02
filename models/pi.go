@@ -16,7 +16,7 @@ func runCooler (dur time.Duration, running *bool) {
 	targetTm := time.Now().Add(dur)
 
 	// pull the pin high
-	pin := rpio.Pin(16)
+	pin := rpio.Pin(12)
 	pin.Output()
 	pin.High()
 	
@@ -54,11 +54,14 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 
 	triggered := false 
 	for *running {
-		if triggered == false && pin.EdgeDetected() {
-			runCooler(time.Minute, running) // open saysme
-			triggered = true // i think we're getting re-entry stuff...
+		if pin.EdgeDetected() {
+			if triggered == false {
+				runCooler(time.Minute, running) // open saysme
+				triggered = true // i think we're getting re-entry stuff...
+			}
+			// else we ignore it, it's still triggering
 		} else {
-			triggered = false 
+			triggered = false  // we're in the clear
 		}
 		time.Sleep(time.Second / 2)
 	}
