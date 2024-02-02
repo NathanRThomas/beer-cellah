@@ -58,7 +58,7 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 }
 
 // monitors the temp to know when to run things
-func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time) {
+func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64) {
 	defer wg.Done()
 
 	for {
@@ -68,7 +68,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time) {
 			tmp := CheckAirTemp()
 			fmt.Println("Checking air temp: ", tmp)
 			// check the temp, see if we need to do anything
-			if tmp > 70 { 
+			if tmp > target { 
 
 				// we need to do something
 				runCooler(time.Minute, running)
