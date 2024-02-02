@@ -73,7 +73,6 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time) {
 				runCooler(time.Minute, running)
 			}
 		default:
-			fmt.Println("not checking air temp")
 			time.Sleep(time.Second)
 		}
 
@@ -98,7 +97,7 @@ func CheckAirTemp () float64 {
 
 	deg := data[len(data)-6:]
 	if deg[0] != '=' {
-		log.Printf("CheckAirTemp: Not expected body: %s\n", string(data))
+		log.Printf("CheckAirTemp: Not expected body: %s :: %s\n", string(deg), string(data))
 		return 0
 	}
 
