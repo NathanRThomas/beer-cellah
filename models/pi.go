@@ -110,5 +110,5 @@ func CheckAirTemp () float64 {
 		return 0
 	}
 
-	return ((float64(degC) / 1000) * (9/5)) + 32
+	return ((float64(degC) / 1000) * 9) / 5 + 32
 }
