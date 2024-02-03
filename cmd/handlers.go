@@ -51,9 +51,9 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 	for _, t := range tempHistory {
 		tmps = append (tmps, fmt.Sprintf("%.1f", t))
 
-		if max > t {
+		if t > max {
 			max = t 
-		} else if min < t {
+		} else if t < min {
 			min = t 
 		}
 	}
