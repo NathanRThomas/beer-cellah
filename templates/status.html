@@ -5,9 +5,9 @@
     </head>
     <body>
         <h1>Welcome to the Beer Cellah!</h1>
-        <br/><hr/>
+        <hr/>
         <h4>Currently we are {{ if .Running }}RUNNING!!!{{ else }}NOT running{{ end }}</h4>
-        <div style="margin-top: 5rem;">
+        <div style="margin-top: 1rem;">
             <table>
                 <thead>
                     <tr><th>Current</th><th>Max</th><th>Min</th></tr>
@@ -17,7 +17,7 @@
                 </tbody>
             </table>
         </div>
-        <div style="margin-top: 5rem;">
+        <div style="margin-top: 2rem;">
             <canvas id="myCanvas" width="720" height="200" style="border:1px solid grey"></canvas>
         </div>
 
@@ -31,7 +31,7 @@
             const yArray = [{{ .Temps }}];
             
             ctx.fillStyle = "red";
-            for (let i = 0; i < xArray.length-1; i++) {
+            for (let i = 0; i < yArray.length-1; i++) {
               ctx.beginPath();
               ctx.ellipse(Math.ceil(i / 4), yArray[i] * 2, 3, 3, 0, 0, Math.PI * 2);
               ctx.fill();
