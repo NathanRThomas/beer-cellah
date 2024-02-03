@@ -13,21 +13,42 @@ import (
 	"strings"
 )
 
-func runCooler (dur time.Duration, running *bool) {
-	fmt.Println("starting cooloer")
-	defer fmt.Println("done cooling")
+const coolerRelayPin	= 12
 
+var tempHistory []float32
+var coolerRunning bool 
+
+func addTemp (t float64) {
+	if len(tempHistory) > 60 * 24 * 2 { // keeping about 48 hours of history
+		tempHistory = tempHistory[1:]
+	}
+
+	tempHistory = append (tempHistory, float32(t)) // i'm keeping these as 32 bit simply for the ram usage
+}
+
+func ReturnStats () (bool, []float32) {
+	return coolerRunning, tempHistory
+}
+
+func waitForIt (dur time.Duration, running *bool) {
 	targetTm := time.Now().Add(dur)
 
-	// pull the pin high
-	pin := rpio.Pin(12)
-	pin.Output()
-	pin.High()
-	
 	for *running && targetTm.After(time.Now()) {
 
 		time.Sleep(time.Second)
 	}
+}
+
+func runCooler (dur time.Duration, running *bool) {
+	fmt.Println("starting cooloer")
+	defer fmt.Println("done cooling")
+
+	// pull the pin high
+	pin := rpio.Pin(coolerRelayPin)
+	pin.Output()
+	pin.High()
+	
+	waitForIt (dur, running)
 
 	//pin.PullDown() // make it low again
 	pin.Low()
@@ -66,12 +87,30 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 		case <-c:
 			// we got something to do
 			tmp := CheckAirTemp()
-			fmt.Println("Checking air temp: ", tmp)
+			// fmt.Println("Checking air temp: ", tmp)
 			// check the temp, see if we need to do anything
 			if tmp > target { 
+				fmt.Println("Air temp %.1fF over target %.1fF: ", tmp, target)
 
-				// we need to do something
-				runCooler(time.Minute, running)
+				// pull the pin high
+				pin := rpio.Pin(coolerRelayPin)
+				pin.Output()
+				pin.High()
+				coolerRunning = true 
+
+				for tmp > target {
+					// now we loop for 1 minute at a time, checking for the temp to be lower
+					waitForIt(time.Minute, running)
+
+					tmp = CheckAirTemp()
+				}
+
+				// we're good now
+				pin.Low()
+				pin.PullOff()
+				coolerRunning = false 
+
+				fmt.Printf("Done Cooling. Air temp %.1fF", tmp)
 			}
 		default:
 			time.Sleep(time.Second)
@@ -110,5 +149,8 @@ func CheckAirTemp () float64 {
 		return 0
 	}
 
-	return ((float64(degC) / 1000) * 9) / 5 + 32
+	degF := ((float64(degC) / 1000) * 9) / 5 + 32
+
+	addTemp(degF)
+	return degF
 }

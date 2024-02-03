@@ -1,8 +1,38 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Beer Cellah!</title>
     </head>
     <body>
         <h1>Welcome to the Beer Cellah!</h1>
+        <br/><hr/>
+        <h4>Currently we are {{ if .Running }}RUNNING!!!{{ else }}NOT running{{ end }}</h4>
+        <div style="margin-top: 10rem;">
+            <canvas id="myCanvas" width="400" height="400" style="border:1px solid grey"></canvas>
+        </div>
+
+        <script>
+            const canvas = document.getElementById("myCanvas");
+            const ctx = canvas.getContext("2d");
+            
+            let xMax = canvas.height = canvas.width;
+            let yMax = xMax;
+            ctx.transform(1, 0, 0, -1, 0, xMax)
+            
+            const xArray = [{{ .Indexes }}];
+            const yArray = [{{ .Temps }}];
+            
+            ctx.fillStyle = "red";
+            for (let i = 0; i < xArray.length-1; i++) {
+              let x = xArray[i] * xMax/150;
+              let y = yArray[i] * yMax/15;
+              ctx.beginPath();
+              ctx.ellipse(x, y, 3, 3, 0, 0, Math.PI * 2);
+              ctx.fill();
+            }
+        </script>
+            
     </body>
 </html>
+
+

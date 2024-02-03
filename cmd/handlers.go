@@ -6,11 +6,14 @@
 package main
 
 import (
+	"beer-cellah/models"
 	// "github.com/pkg/errors"
 
+	"fmt"
 	"html/template"
 	"net/http"
 	"log"
+	"strings"
 )
 
   //-------------------------------------------------------------------------------------------------------------------------//
@@ -27,7 +30,24 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	err = t.Execute(w, nil)
+	running, tempHistory := models.ReturnStats()
+
+	var data struct {
+		Running bool 
+		Indexes, Temps string 
+	}
+	data.Running = running
+	
+	var idx, tmps []string 
+	for i, t := range tempHistory {
+		idx = append(idx, fmt.Sprintf("%d", i))
+		tmps = append (tmps, fmt.Sprintf("%.1f", t))
+	}
+
+	data.Indexes = strings.Join(idx, ",")
+	data.Temps = strings.Join(tmps, ",")
+	
+	err = t.Execute(w, data)
 	if err != nil {
         log.Print(err.Error())
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
