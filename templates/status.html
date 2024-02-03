@@ -30,7 +30,7 @@
         <script>
             const canvas = document.getElementById("myCanvas");
             const ctx = canvas.getContext("2d");
-            ctx.font = "12px Arial";
+            ctx.font = "10px Arial";
             
             let xMax = canvas.width;
             let yMax = canvas.height;
@@ -64,9 +64,9 @@
             const yArray = [{{ .Temps }}];
             
             ctx.fillStyle = "red";
-            for (let i = 0; i < yArray.length-1; i++) {
+            for (let i = 0; i < yArray.length; i++) {
               ctx.beginPath();
-              ctx.ellipse(i * 10, yArray[i] - baseTemp, 3, 1, 0, 0, Math.PI * 2);
+              ctx.ellipse(i, yArray[i] - baseTemp, 3, 1, 0, 0, Math.PI * 2);
               ctx.fill();
             }
 
