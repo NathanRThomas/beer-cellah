@@ -7,8 +7,18 @@
         <h1>Welcome to the Beer Cellah!</h1>
         <br/><hr/>
         <h4>Currently we are {{ if .Running }}RUNNING!!!{{ else }}NOT running{{ end }}</h4>
-        <div style="margin-top: 10rem;">
-            <canvas id="myCanvas" width="400" height="400" style="border:1px solid grey"></canvas>
+        <div style="margin-top: 5rem;">
+            <table>
+                <thead>
+                    <tr><th>Current</th><th>Max</th><th>Min</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>{{ .CurrentTemp }}</td><td>{{ .MaxTemp }}</td><td>{{ .MinTemp }}</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 5rem;">
+            <canvas id="myCanvas" width="720" height="200" style="border:1px solid grey"></canvas>
         </div>
 
         <script>
@@ -16,18 +26,14 @@
             const ctx = canvas.getContext("2d");
             
             let xMax = canvas.height = canvas.width;
-            let yMax = xMax;
             ctx.transform(1, 0, 0, -1, 0, xMax)
             
-            const xArray = [{{ .Indexes }}];
             const yArray = [{{ .Temps }}];
             
             ctx.fillStyle = "red";
             for (let i = 0; i < xArray.length-1; i++) {
-              let x = xArray[i] * xMax/150;
-              let y = yArray[i] * yMax/15;
               ctx.beginPath();
-              ctx.ellipse(x, y, 3, 3, 0, 0, Math.PI * 2);
+              ctx.ellipse(Math.ceil(i / 4), yArray[i] * 2, 3, 3, 0, 0, Math.PI * 2);
               ctx.fill();
             }
         </script>

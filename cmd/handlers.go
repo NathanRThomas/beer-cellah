@@ -34,18 +34,33 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 
 	var data struct {
 		Running bool 
-		Indexes, Temps template.JS 
+		Temps template.JS 
+		CurrentTemp, MaxTemp, MinTemp string 
 	}
 	data.Running = running
+
+	var max, min float32
 	
-	var idx, tmps []string 
-	for i, t := range tempHistory {
-		idx = append(idx, fmt.Sprintf("%d", i))
+	if len(tempHistory) > 0 {
+		max = tempHistory[0]
+		min = tempHistory[0]
+		data.CurrentTemp = fmt.Sprintf("%.1fF", tempHistory[len(tempHistory)-1])
+	}
+	
+	var tmps []string 
+	for _, t := range tempHistory {
 		tmps = append (tmps, fmt.Sprintf("%.1f", t))
+
+		if max > t {
+			max = t 
+		} else if min < t {
+			min = t 
+		}
 	}
 
-	data.Indexes = template.JS(strings.Join(idx, ","))
 	data.Temps = template.JS(strings.Join(tmps, ","))
+	data.MaxTemp = fmt.Sprintf("%.1fF", max)
+	data.MinTemp = fmt.Sprintf("%.1fF", min)
 	
 	err = t.Execute(w, data)
 	if err != nil {
