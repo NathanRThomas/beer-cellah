@@ -34,10 +34,11 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 
 	var data struct {
 		Running bool 
-		Temps template.JS 
+		Temps, Target template.JS 
 		CurrentTemp, MaxTemp, MinTemp string 
 	}
 	data.Running = running
+	data.Target = template.JS(fmt.Sprintf("%.0f", opts.Target))
 
 	var max, min float32
 	

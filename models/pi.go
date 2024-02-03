@@ -110,7 +110,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				pin.PullOff()
 				coolerRunning = false 
 
-				fmt.Printf("Done Cooling. Air temp %.1fF", tmp)
+				fmt.Printf("Done Cooling. Air temp %.1fF\n", tmp)
 			}
 		default:
 			time.Sleep(time.Second)

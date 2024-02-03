@@ -113,7 +113,7 @@ func main() {
 	// first step, parse the command line params
 	parseCommandLineArgs()
 
-	log.Printf("Starting %s v%s\nTargetting: %.1fF", apiName, apiVersion, opts.Target)
+	log.Printf("Starting %s v%s\nTargetting: %.1fF\n", apiName, apiVersion, opts.Target)
 
 	// main app for everything
 	app := &app{
@@ -144,8 +144,10 @@ func main() {
 
 	var wg sync.WaitGroup
 
+	/*
 	wg.Add(1)
 	go models.MonitorButton (&wg, &app.running)
+	*/
 
 	// create a ticker for monitoring air temp
 	wg.Add(1)
