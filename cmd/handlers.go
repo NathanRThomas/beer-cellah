@@ -30,11 +30,11 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	running, tempHistory := models.ReturnStats()
+	running, tempHistory, coolingHistory := models.ReturnStats()
 
 	var data struct {
 		Running bool 
-		Temps, Target template.JS 
+		Temps, Target, CoolingHistory template.JS 
 		CurrentTemp, MaxTemp, MinTemp string 
 	}
 	data.Running = running
@@ -60,8 +60,26 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Temps = template.JS(strings.Join(tmps, ","))
-	data.MaxTemp = fmt.Sprintf("%.1fF", max)
-	data.MinTemp = fmt.Sprintf("%.1fF", min)
+
+	var cools []string 
+	for _, t := range coolingHistory {
+		if t {
+			tmps = append (cools, "1")
+		} else {
+			tmps = append (cools, "0")
+		}
+	}
+
+	data.CoolingHistory = template.JS(strings.Join(cools, ","))
+
+	if len(data.CurrentTemp) == 0 {
+		data.CurrentTemp = "-"
+		data.MaxTemp = "-"
+		data.MinTemp = "-"
+	} else {
+		data.MaxTemp = fmt.Sprintf("%.1fF", max)
+		data.MinTemp = fmt.Sprintf("%.1fF", min)
+	}
 	
 	err = t.Execute(w, data)
 	if err != nil {

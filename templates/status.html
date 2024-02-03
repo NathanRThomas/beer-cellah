@@ -76,6 +76,18 @@
             ctx.moveTo(0, {{ .Target }} - baseTemp);
             ctx.lineTo(xMax, {{ .Target }} - baseTemp);
             ctx.stroke();
+
+
+            const coolingHistory = [{{ .CoolingHistory }}];
+            ctx.fillStyle = "green";
+            
+            for (let i = 0; i < coolingHistory.length; i++) {
+            	if (coolingHistory[i] > 0) {
+                	ctx.beginPath();
+                    ctx.ellipse(i, 59, 4, 1, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
         </script>
             
     </body>

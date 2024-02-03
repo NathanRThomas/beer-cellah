@@ -16,18 +16,21 @@ import (
 const coolerRelayPin	= 12
 
 var tempHistory []float32
+var coolingHistory []bool
 var coolerRunning bool 
 
 func addTemp (t float64) {
 	if len(tempHistory) > 60 * 24 * 2 { // keeping about 48 hours of history
 		tempHistory = tempHistory[1:]
+		coolingHistory = coolingHistory[1:]
 	}
 
 	tempHistory = append (tempHistory, float32(t)) // i'm keeping these as 32 bit simply for the ram usage
+	coolingHistory = append (coolingHistory, coolerRunning) // just record if we happened to be running
 }
 
-func ReturnStats () (bool, []float32) {
-	return coolerRunning, tempHistory
+func ReturnStats () (bool, []float32, []bool) {
+	return coolerRunning, tempHistory, coolingHistory
 }
 
 func waitForIt (dur time.Duration, running *bool) {
