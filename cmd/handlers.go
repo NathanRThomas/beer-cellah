@@ -34,7 +34,7 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 
 	var data struct {
 		Running bool 
-		Indexes, Temps string 
+		Indexes, Temps template.JS 
 	}
 	data.Running = running
 	
@@ -44,8 +44,8 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 		tmps = append (tmps, fmt.Sprintf("%.1f", t))
 	}
 
-	data.Indexes = strings.Join(idx, ",")
-	data.Temps = strings.Join(tmps, ",")
+	data.Indexes = template.JS(strings.Join(idx, ","))
+	data.Temps = template.JS(strings.Join(tmps, ","))
 	
 	err = t.Execute(w, data)
 	if err != nil {
