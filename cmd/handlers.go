@@ -50,7 +50,7 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 	
 	var tmps []string 
 	for _, t := range tempHistory {
-		tmps = append (tmps, fmt.Sprintf("%.1f", t))
+		tmps = append (tmps, fmt.Sprintf("%.0f", t))
 
 		if t > max {
 			max = t 
@@ -64,9 +64,9 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 	var cools []string 
 	for _, t := range coolingHistory {
 		if t {
-			tmps = append (cools, "1")
+			cools = append (cools, "1")
 		} else {
-			tmps = append (cools, "0")
+			cools = append (cools, "0")
 		}
 	}
 
