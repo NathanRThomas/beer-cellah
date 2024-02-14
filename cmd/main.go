@@ -39,6 +39,7 @@ const apiVersion = "0.1.0"
 var opts struct {
 	Help bool `short:"h" long:"help" description:"Shows help message"`
 	Port string `short:"p" long:"port" description:"Specifies the target port to run on"`
+	Device string `long:"device" description:"Specifies the device name to target for temp" default:"28-3ce1d443d7f3"`
 	Target float64 `long:"target" description:"target temperature to stay below in F" default:"55"`
 	Templates string `long:"templates" description:"Specifies the folder where the templates are stored"`
 	Verbose []bool `short:"v" long:"verbose" description:"Show verbose debug information -v max of -vv"`
@@ -151,7 +152,7 @@ func main() {
 
 	// create a ticker for monitoring air temp
 	wg.Add(1)
-	go models.MonitorTemp (&wg, &app.running, time.Tick(time.Minute), opts.Target)
+	go models.MonitorTemp (&wg, &app.running, time.Tick(time.Minute), opts.Target, opts.Device)
 
 	log.Printf("%s v%s started on port %s\n", apiName, apiVersion, opts.Port) // going to always record this starting message
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed { // Error starting or closing listener:

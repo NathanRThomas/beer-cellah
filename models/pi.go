@@ -82,14 +82,14 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 }
 
 // monitors the temp to know when to run things
-func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64) {
+func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64, device string) {
 	defer wg.Done()
 
 	for {
 		select {
 		case <-c:
 			// we got something to do
-			tmp := CheckAirTemp()
+			tmp := CheckAirTemp(device)
 			// fmt.Println("Checking air temp: ", tmp)
 			// check the temp, see if we need to do anything
 			if tmp > target { 
@@ -105,7 +105,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 					// now we loop for 1 minute at a time, checking for the temp to be lower
 					waitForIt(time.Minute, running)
 
-					tmp = CheckAirTemp()
+					tmp = CheckAirTemp(device)
 				}
 
 				// we're good now
@@ -126,8 +126,8 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 }
 
 // returns the air temp in degrees f
-func CheckAirTemp () float64 {
-	data, err := os.ReadFile("/sys/bus/w1/devices/28-3ce1d4434b6a/w1_slave")
+func CheckAirTemp (device string) float64 {
+	data, err := os.ReadFile(fmt.Sprintf("/sys/bus/w1/devices/%s/w1_slave", device))
 	if err != nil {
 		log.Printf("CheckAirTemp: %v\n", err)
 		return 0
