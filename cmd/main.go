@@ -29,7 +29,7 @@ import (
 
 // give us a name
 const apiName = "Beer Cellah"
-const apiVersion = "0.1.0"
+const apiVersion = "0.1.1"
 
   //-------------------------------------------------------------------------------------------------------------------//
  //----- CONFIG ------------------------------------------------------------------------------------------------------//
@@ -110,7 +110,7 @@ type app struct {
 //-------------------------------------------------------------------------------------------------------------------//
 
 func main() {
-
+	log.SetFlags(log.Lshortfile)
 	// first step, parse the command line params
 	parseCommandLineArgs()
 
@@ -142,6 +142,9 @@ func main() {
 
 		srv.Shutdown(context.Background()) // shutdown the server
 	}()
+
+	// make sure the cooler isn't running
+	models.StopCooler()
 
 	var wg sync.WaitGroup
 

@@ -53,7 +53,13 @@ func runCooler (dur time.Duration, running *bool) {
 	
 	waitForIt (dur, running)
 
-	//pin.PullDown() // make it low again
+	// stop it
+	StopCooler()
+}
+
+func StopCooler () {
+	// pull the pin high
+	pin := rpio.Pin(coolerRelayPin)
 	pin.Low()
 	pin.PullOff()
 }
