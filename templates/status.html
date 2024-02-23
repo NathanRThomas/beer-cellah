@@ -9,7 +9,7 @@
         }
     </style>
 
-    <body>
+    <body style="font-size:2rem">
         <h1>Welcome to the Beer Cellah!</h1>
         <hr/>
         <h4>Currently we are {{ if .Running }}RUNNING!!!{{ else }}NOT running{{ end }}</h4>
@@ -24,7 +24,7 @@
             </table>
         </div>
         <div style="margin-top: 3rem;">
-            <canvas id="myCanvas" width="720" height="180" style="border:1px solid grey"></canvas>
+            <canvas id="myCanvas" width="720" height="180" style="border:1px solid grey;width:100%"></canvas>
         </div>
 
         <script>

@@ -99,7 +99,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 			// fmt.Println("Checking air temp: ", tmp)
 			// check the temp, see if we need to do anything
 			if tmp > target { 
-				fmt.Printf("Air temp %.1fF over target %.1fF\n", tmp, target)
+				fmt.Printf("Air temp %.1fF over target %.1fF\n", target - tmp, target)
 
 				// pull the pin high
 				pin := rpio.Pin(coolerRelayPin)
@@ -107,7 +107,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				pin.High()
 				coolerRunning = true 
 
-				for tmp > target {
+				for tmp > target - 0.9 { // make it a little colder than the target to reduce switching all the time
 					// now we loop for 1 minute at a time, checking for the temp to be lower
 					waitForIt(time.Minute, running)
 
