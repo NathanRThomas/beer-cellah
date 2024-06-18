@@ -38,13 +38,13 @@
                 title: { text: "Temp", font: { size: 24 } },
                 delta: { reference: {{ .Target }}, increasing: { color: "crimson" } },
                 gauge: {
-                    axis: { range: [40, 80], tickwidth: 1, tickcolor: "black" },
+                    axis: { range: [45, 75], tickwidth: 1, tickcolor: "black" },
                     bar: { color: "green" },
                     bgcolor: "white",
                     borderwidth: 2,
                     bordercolor: "white",
                     steps: [
-                        { range: [40, 80], color: "silver" },
+                        { range: [45, 75], color: "silver" },
                         { range: [{{ .MinTemp }}, {{ .MaxTemp }}], color: "cornflowerblue" }
                     ],
                     threshold: {

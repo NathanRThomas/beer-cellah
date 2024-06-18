@@ -45,7 +45,7 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 	if len(tempHistory) > 0 {
 		max = tempHistory[0]
 		min = tempHistory[0]
-		data.CurrentTemp = fmt.Sprintf("%.1fF", tempHistory[len(tempHistory)-1])
+		data.CurrentTemp = fmt.Sprintf("%.1f", tempHistory[len(tempHistory)-1])
 	}
 	
 	var tmps []string 
@@ -79,8 +79,8 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 		data.MaxTemp = "65"
 		data.MinTemp = "65"
 	} else {
-		data.MaxTemp = fmt.Sprintf("%.1fF", max)
-		data.MinTemp = fmt.Sprintf("%.1fF", min)
+		data.MaxTemp = fmt.Sprintf("%.1f", max)
+		data.MinTemp = fmt.Sprintf("%.1f", min)
 	}
 	
 	err = t.Execute(w, data)
