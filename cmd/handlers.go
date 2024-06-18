@@ -61,21 +61,23 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 
 	data.Temps = template.JS(strings.Join(tmps, ","))
 
-	var cools []string 
+	var cools float64
 	for _, t := range coolingHistory {
 		if t {
-			cools = append (cools, "1")
-		} else {
-			cools = append (cools, "0")
+			cools += 1
 		}
 	}
 
-	data.CoolingHistory = template.JS(strings.Join(cools, ","))
+	if len(coolingHistory) > 0 {
+		data.CoolingHistory = template.JS(fmt.Sprintf("%.1f", (cools / float64(len(coolingHistory))) * 100))
+	} else {
+		data.CoolingHistory = template.JS("100")
+	}
 
 	if len(data.CurrentTemp) == 0 {
-		data.CurrentTemp = "-"
-		data.MaxTemp = "-"
-		data.MinTemp = "-"
+		data.CurrentTemp = "65"
+		data.MaxTemp = "65"
+		data.MinTemp = "65"
 	} else {
 		data.MaxTemp = fmt.Sprintf("%.1fF", max)
 		data.MinTemp = fmt.Sprintf("%.1fF", min)

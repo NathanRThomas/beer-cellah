@@ -25,7 +25,7 @@ test:
 
 run: build
 run:
-	$(GOPATH)/beer-cellah
+	$(GOPATH)/beer-cellah --device=""
 
 deploy: build 
 deploy:

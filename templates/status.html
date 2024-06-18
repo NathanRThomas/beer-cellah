@@ -2,8 +2,21 @@
 <html>
     <head>
         <title>Beer Cellah!</title>
+
+        <script src='https://cdn.plot.ly/plotly-2.32.0.min.js'></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
     </head>
     <style>
+        
+        body {
+            font-family: "Oswald", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+        }
+
         td {
             padding: 10px;
         }
@@ -12,82 +25,66 @@
     <body style="font-size:2rem;background-color: white;">
         <h1>Welcome to the Beer Cellah!</h1>
         <hr/>
-        <h4>Currently we are {{ if .Running }}RUNNING!!!{{ else }}NOT running{{ end }}</h4>
-        <div style="margin-top: 1rem;">
-            <table>
-                <thead>
-                    <tr><th>Current</th><th>Max</th><th>Min</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>{{ .CurrentTemp }}</td><td>{{ .MaxTemp }}</td><td>{{ .MinTemp }}</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <div style="margin-top: 3rem;">
-            <canvas id="myCanvas" width="720" height="180" style="border:1px solid grey;width:100%"></canvas>
-        </div>
+        <div style="margin-top: 1rem;" id='tempChart'></div>
+
+        <div id='coolingChart'></div>
 
         <script>
-            const canvas = document.getElementById("myCanvas");
-            const ctx = canvas.getContext("2d");
-            ctx.font = "9px Arial";
-            
-            let xMax = canvas.width;
-            let yMax = canvas.height;
-            let baseTemp = 40; // this is the actual min temp we're going to show
-            let tempOffset = 4; // 3 units up for our vertical axis
-            
-            // ctx.transform(1, 0, 0, 3, 0, yMax)
-            ctx.transform(1, 0, 0, -4, 0, yMax);
-            
-            // Add tick marks and values along y-axis
-            for (let i = 0; i <= yMax / tempOffset; i += 10) {
-              ctx.beginPath();
-              ctx.strokeStyle = "#AAA";
-              ctx.moveTo(1, i);
-              ctx.lineTo(xMax - 40, i);
-              ctx.stroke();
-            }
-            
-            // add the values to the scale
-            ctx.save();
-            
-            const labels = [70, 60, 50]; // just hard-coded labels around where we're expecting to see the temps
-            ctx.setTransform(1, 0, 0, 4, 0, 0);
-            
-            for (let i = 0; i < labels.length; i++) {
-              ctx.fillText(labels[i], xMax - 30, i * 10 + 18);
-            }
-            
-            ctx.restore();
-            
-            const yArray = [{{ .Temps }}];
-            
-            ctx.fillStyle = "red";
-            for (let i = 0; i < yArray.length; i++) {
-              ctx.beginPath();
-              ctx.ellipse(i/4, yArray[i] - baseTemp, 3, 1, 0, 0, Math.PI * 2);
-              ctx.fill();
-            }
-
-            // Plot Line
-            ctx.beginPath();
-            ctx.strokeStyle = "blue";
-            ctx.moveTo(0, {{ .Target }} - baseTemp);
-            ctx.lineTo(xMax - 40, {{ .Target }} - baseTemp);
-            ctx.stroke();
-
-
-            const coolingHistory = [{{ .CoolingHistory }}];
-            ctx.fillStyle = "green";
-            
-            for (let i = 0; i < coolingHistory.length; i++) {
-            	if (coolingHistory[i] > 0) {
-                	ctx.beginPath();
-                    ctx.ellipse(i/4, 45, 5, 1, 0, 0, Math.PI * 2);
-                    ctx.fill();
+            var data = [
+            {
+                type: "indicator",
+                mode: "gauge+number+delta",
+                value: {{ .CurrentTemp }},
+                title: { text: "Temp", font: { size: 24 } },
+                delta: { reference: {{ .Target }}, increasing: { color: "crimson" } },
+                gauge: {
+                    axis: { range: [40, 80], tickwidth: 1, tickcolor: "black" },
+                    bar: { color: "green" },
+                    bgcolor: "white",
+                    borderwidth: 2,
+                    bordercolor: "white",
+                    steps: [
+                        { range: [40, 80], color: "silver" },
+                        { range: [{{ .MinTemp }}, {{ .MaxTemp }}], color: "cornflowerblue" }
+                    ],
+                    threshold: {
+                        line: { color: "crimson", width: 4 },
+                        thickness: 0.75,
+                        value: {{ .Target }}
+                    }
                 }
             }
+            ];
+
+            var layout = {
+                width: "100vw",
+                height: "auto",
+                margin: { t: 25, r: 25, l: 25, b: 0 }
+            };
+
+            Plotly.newPlot('tempChart', data, layout);
+
+            // cooling
+            var coolingData = [
+            {
+                type: "indicator",
+                mode: "number+gauge+delta",
+                gauge: { 
+                    shape: "bullet",
+                    bgcolor: "white",
+                    bar: { color: {{ if .Running }}"darkblue"{{ else }}"silver"{{ end }} },
+                },
+                delta: { reference: 100 },
+                value: {{ .CoolingHistory }},
+                domain: { x: [0, 1], y: [0, 1] },
+                title: { text: "Duty" }
+            }
+            ];
+
+            var coolingLayout = { width: "100vw", height: "auto" };
+
+            Plotly.newPlot('coolingChart', coolingData, coolingLayout);
+
         </script>
             
     </body>

@@ -29,7 +29,7 @@ import (
 
 // give us a name
 const apiName = "Beer Cellah"
-const apiVersion = "0.1.1"
+const apiVersion = "0.2.0"
 
   //-------------------------------------------------------------------------------------------------------------------//
  //----- CONFIG ------------------------------------------------------------------------------------------------------//
@@ -121,9 +121,11 @@ func main() {
 		running: true,
 	}
 
-	err := rpio.Open()
-	if err != nil {
-		log.Fatal(err)
+	if len(opts.Device) > 0 {
+		err := rpio.Open()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// create our server server
@@ -144,7 +146,9 @@ func main() {
 	}()
 
 	// make sure the cooler isn't running
-	models.StopCooler()
+	if len(opts.Device) > 0 {
+		models.StopCooler()
+	}
 
 	var wg sync.WaitGroup
 
@@ -154,8 +158,10 @@ func main() {
 	*/
 
 	// create a ticker for monitoring air temp
-	wg.Add(1)
-	go models.MonitorTemp (&wg, &app.running, time.Tick(time.Minute), opts.Target, opts.Device)
+	if len(opts.Device) > 0 {
+		wg.Add(1)
+		go models.MonitorTemp (&wg, &app.running, time.Tick(time.Minute), opts.Target, opts.Device)
+	}
 
 	log.Printf("%s v%s started on port %s\n", apiName, apiVersion, opts.Port) // going to always record this starting message
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed { // Error starting or closing listener:
@@ -165,7 +171,9 @@ func main() {
 	log.Println("exiting...")
 	wg.Wait()
 
-	rpio.Close()
+	if len(opts.Device) > 0 {
+		rpio.Close()
+	}
 	
 	os.Exit(0) //final exit
 }

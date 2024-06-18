@@ -107,7 +107,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				pin.High()
 				coolerRunning = true 
 
-				for tmp > target - 0.9 { // make it a little colder than the target to reduce switching all the time
+				for tmp > target - 0.6 { // make it a little colder than the target to reduce switching all the time
 					// now we loop for 1 minute at a time, checking for the temp to be lower
 					waitForIt(time.Minute, running)
 
