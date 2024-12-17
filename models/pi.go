@@ -99,7 +99,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 			// fmt.Println("Checking air temp: ", tmp)
 			// check the temp, see if we need to do anything
 			if tmp > target { 
-				fmt.Printf("Air temp %.1fF over target %.1fF\n", target - tmp, target)
+				fmt.Printf("Air temp %.1fF over target %.1fF\n", tmp - target, target)
 
 				// pull the pin high
 				pin := rpio.Pin(coolerRelayPin)
