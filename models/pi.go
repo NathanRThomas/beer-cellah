@@ -57,6 +57,17 @@ func runCooler (dur time.Duration, running *bool) {
 	StopCooler()
 }
 
+// runs the pump to get cool water into the radiator
+func runPump (running *bool) {
+	// make an api call to start the pump
+
+	// wait our timeout
+	waitForIt (time.Second * 30, running)
+
+	// now turn the pump off
+
+}
+
 func StopCooler () {
 	// pull the pin high
 	pin := rpio.Pin(coolerRelayPin)
@@ -105,13 +116,24 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				pin := rpio.Pin(coolerRelayPin)
 				pin.Output()
 				pin.High()
-				coolerRunning = true 
+				coolerRunning = true
 
-				for tmp > target - 0.6 { // make it a little colder than the target to reduce switching all the time
+				// first launch the pump
+				go runPump (running)
+
+				// run for a period of time
+				// we don't want this to go too long because the pump only runs for a short period
+				
+				for x := 0; x < 5; x ++ {
 					// now we loop for 1 minute at a time, checking for the temp to be lower
 					waitForIt(time.Minute, running)
 
 					tmp = CheckAirTemp(device)
+
+					// make it a little colder than the target to reduce switching all the time
+					if tmp > target - 0.6 || *running == false {
+						break // bail early
+					}
 				}
 
 				// we're good now
