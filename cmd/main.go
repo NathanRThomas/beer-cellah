@@ -29,7 +29,7 @@ import (
 
 // give us a name
 const apiName = "Beer Cellah"
-const apiVersion = "0.2.0"
+const apiVersion = "0.3.0"
 
   //-------------------------------------------------------------------------------------------------------------------//
  //----- CONFIG ------------------------------------------------------------------------------------------------------//
@@ -43,6 +43,7 @@ var opts struct {
 	Target float64 `long:"target" description:"target temperature to stay below in F" default:"55"`
 	Templates string `long:"templates" description:"Specifies the folder where the templates are stored"`
 	Verbose []bool `short:"v" long:"verbose" description:"Show verbose debug information -v max of -vv"`
+	PumpUrl string `long:"pump" description:"Specifies the URL to call to start the pump" default:"http://192.168.149.80"`
 }
 
   //-------------------------------------------------------------------------------------------------------------------//
@@ -160,7 +161,7 @@ func main() {
 	// create a ticker for monitoring air temp
 	if len(opts.Device) > 0 {
 		wg.Add(1)
-		go models.MonitorTemp (&wg, &app.running, time.Tick(time.Minute), opts.Target, opts.Device)
+		go models.MonitorTemp (&wg, &app.running, time.Tick(time.Minute), opts.Target, opts.Device, opts.PumpUrl)
 	}
 
 	log.Printf("%s v%s started on port %s\n", apiName, apiVersion, opts.Port) // going to always record this starting message

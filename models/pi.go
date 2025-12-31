@@ -10,6 +10,7 @@ import (
 	"os"
 	"log"
 	"strconv"
+	"net/http"
 	"strings"
 )
 
@@ -58,14 +59,35 @@ func runCooler (dur time.Duration, running *bool) {
 }
 
 // runs the pump to get cool water into the radiator
-func runPump (running *bool) {
-	// make an api call to start the pump
+// we don't want to run this too long, we'll max the radiator quickly
+// going to run this for 30 seconds at a time
+// with 10 minutes between runs
+func runPump (pumpUrl string) {
+	for coolerRunning { // loop forever
+		// API call to start the pump
+		resp, err := http.Get(fmt.Sprintf("%s/rpc/Switch.Set?id=0&on=true", pumpUrl))
+		if err != nil {
+			fmt.Printf("runPump: Error starting pump: %v\n", err)
+			waitForIt (time.Second * 30, &coolerRunning)
+			continue
+		}
+		resp.Body.Close() // close the response body
 
-	// wait our timeout
-	waitForIt (time.Second * 30, running)
+		// wait for 30 seconds
+		waitForIt (time.Second * 30, &coolerRunning) // wait for 30 seconds
 
-	// now turn the pump off
+		// now turn the pump off
+		resp, err = http.Get(fmt.Sprintf("%s/rpc/Switch.Set?id=0&on=false", pumpUrl))
+		if err != nil {
+			fmt.Printf("runPump: Error stopping pump: %v\n", err)
+			waitForIt (time.Second * 30, &coolerRunning)
+			continue
+		}
+		resp.Body.Close() // close the response body
 
+		// now wait 10 minutes
+		waitForIt (time.Minute * 10, &coolerRunning)
+	} // end of for loop
 }
 
 func StopCooler () {
@@ -99,7 +121,7 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 }
 
 // monitors the temp to know when to run things
-func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64, device string) {
+func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64, device string, pumpUrl string) {
 	defer wg.Done()
 
 	for {
@@ -118,13 +140,11 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				pin.High()
 				coolerRunning = true
 
-				// first launch the pump
-				go runPump (running)
+				// first launch the pump, this runs its own cycles
+				go runPump (pumpUrl)
 
-				// run for a period of time
-				// we don't want this to go too long because the pump only runs for a short period
-				
-				for x := 0; x < 5; x ++ {
+				// this is for the fan control, which we want running anytime it's too warm
+				for {
 					// now we loop for 1 minute at a time, checking for the temp to be lower
 					waitForIt(time.Minute, running)
 
@@ -139,7 +159,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				// we're good now
 				pin.Low()
 				pin.PullOff()
-				coolerRunning = false 
+				coolerRunning = false // this disables the pump thread as well
 
 				fmt.Printf("Done Cooling. Air temp %.1fF\n", tmp)
 			}
