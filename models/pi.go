@@ -131,7 +131,7 @@ func IsNight () bool {
 		return false
 	}
 	now := time.Now().In(loc)
-	return now.Hour() >= 22 || now.Hour() < 7 // 10pm to 7am
+	return now.Hour() >= 21 || now.Hour() < 7 // 9pm to 7am
 }
 
 // monitors the temp to know when to run things
