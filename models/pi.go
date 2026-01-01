@@ -151,7 +151,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				// don't run the cooler between 10pm and 7am ET
 				if IsNight() {
 					fmt.Println("not running cooler at night")
-					waitForIt (time.Minute, running)
+					waitForIt (time.Minute * 10, running)
 					break
 				}
 
@@ -172,7 +172,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 					tmp = CheckAirTemp(device)
 
 					// make it a little colder than the target to reduce switching all the time
-					if tmp > target - 0.6 || *running == false || IsNight() {
+					if tmp < target - 0.6 || *running == false || IsNight() {
 						break // bail early
 					}
 				}
