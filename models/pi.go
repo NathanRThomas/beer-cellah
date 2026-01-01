@@ -124,15 +124,19 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 	}
 }
 
-// monitors the temp to know when to run things
-func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64, device string, pumpUrl string) {
-	defer wg.Done()
-
+func IsNight () bool {
 	loc, err := time.LoadLocation("America/New_York")
 	if err != nil {
 		fmt.Println("error loading location: ", err)
-		return
+		return false
 	}
+	now := time.Now().In(loc)
+	return now.Hour() >= 22 || now.Hour() < 7 // 10pm to 7am
+}
+
+// monitors the temp to know when to run things
+func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64, device string, pumpUrl string) {
+	defer wg.Done()
 
 	for {
 		select {
@@ -145,13 +149,11 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				fmt.Printf("Air temp %.1fF over target %.1fF\n", tmp - target, target)
 
 				// don't run the cooler between 10pm and 7am ET
-				now := time.Now().In(loc)
-				if now.Hour() >= 22 || now.Hour() < 7 { // 10pm to 7am
+				if IsNight() {
 					fmt.Println("not running cooler at night")
 					waitForIt (time.Minute, running)
 					break
 				}
-
 
 				// pull the pin high
 				pin := rpio.Pin(coolerRelayPin)
@@ -170,7 +172,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 					tmp = CheckAirTemp(device)
 
 					// make it a little colder than the target to reduce switching all the time
-					if tmp > target - 0.6 || *running == false {
+					if tmp > target - 0.6 || *running == false || IsNight() {
 						break // bail early
 					}
 				}
