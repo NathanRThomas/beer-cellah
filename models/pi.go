@@ -63,6 +63,7 @@ func runCooler (dur time.Duration, running *bool) {
 // going to run this for 30 seconds at a time
 // with 10 minutes between runs
 func runPump (pumpUrl string) {
+	if len(pumpUrl) == 0 { return } // nothing
 	
 	for coolerRunning { // loop forever		
 		
@@ -77,21 +78,28 @@ func runPump (pumpUrl string) {
 		resp.Body.Close() // close the response body
 
 		// wait for 30 seconds
-		waitForIt (time.Second * 30, &coolerRunning) // wait for 30 seconds
+		waitForIt (time.Second * 25, &coolerRunning) // wait for 30 seconds
 
-		fmt.Println("stopping pump")
 		// now turn the pump off
-		resp, err = http.Get(fmt.Sprintf("%s/rpc/Switch.Set?id=0&on=false", pumpUrl))
-		if err != nil {
-			fmt.Printf("runPump: Error stopping pump: %v\n", err)
-			waitForIt (time.Second * 30, &coolerRunning)
-			continue
-		}
-		resp.Body.Close() // close the response body
-
+		StopPump(pumpUrl)
+		
 		// now wait 10 minutes
-		waitForIt (time.Minute * 10, &coolerRunning)
+		waitForIt (time.Minute * 15, &coolerRunning)
 	} // end of for loop
+}
+
+func StopPump (pumpUrl string) {
+	if len(pumpUrl) == 0 { return } // nothing to see here
+
+	fmt.Println("stopping pump")
+	// now turn the pump off
+	resp, err := http.Get(fmt.Sprintf("%s/rpc/Switch.Set?id=0&on=false", pumpUrl))
+	if err != nil {
+		fmt.Printf("runPump: Error stopping pump: %v\n", err)
+		waitForIt (time.Second * 30, &coolerRunning)
+		return
+	}
+	resp.Body.Close() // close the response body
 }
 
 func StopCooler () {

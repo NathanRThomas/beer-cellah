@@ -151,6 +151,9 @@ func main() {
 		models.StopCooler()
 	}
 
+	// make sure the pump isn't running
+	models.StopPump(opts.PumpUrl)
+
 	var wg sync.WaitGroup
 
 	/*
