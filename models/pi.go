@@ -63,7 +63,10 @@ func runCooler (dur time.Duration, running *bool) {
 // going to run this for 30 seconds at a time
 // with 10 minutes between runs
 func runPump (pumpUrl string) {
-	for coolerRunning { // loop forever
+	
+	for coolerRunning { // loop forever		
+		
+		fmt.Println("running pump")
 		// API call to start the pump
 		resp, err := http.Get(fmt.Sprintf("%s/rpc/Switch.Set?id=0&on=true", pumpUrl))
 		if err != nil {
@@ -76,6 +79,7 @@ func runPump (pumpUrl string) {
 		// wait for 30 seconds
 		waitForIt (time.Second * 30, &coolerRunning) // wait for 30 seconds
 
+		fmt.Println("stopping pump")
 		// now turn the pump off
 		resp, err = http.Get(fmt.Sprintf("%s/rpc/Switch.Set?id=0&on=false", pumpUrl))
 		if err != nil {
@@ -124,6 +128,12 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target float64, device string, pumpUrl string) {
 	defer wg.Done()
 
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		fmt.Println("error loading location: ", err)
+		return
+	}
+
 	for {
 		select {
 		case <-c:
@@ -133,6 +143,15 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 			// check the temp, see if we need to do anything
 			if tmp > target { 
 				fmt.Printf("Air temp %.1fF over target %.1fF\n", tmp - target, target)
+
+				// don't run the cooler between 10pm and 7am ET
+				now := time.Now().In(loc)
+				if now.Hour() >= 22 || now.Hour() < 7 { // 10pm to 7am
+					fmt.Println("not running cooler at night")
+					waitForIt (time.Minute, running)
+					break
+				}
+
 
 				// pull the pin high
 				pin := rpio.Pin(coolerRelayPin)

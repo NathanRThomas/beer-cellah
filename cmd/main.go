@@ -43,7 +43,7 @@ var opts struct {
 	Target float64 `long:"target" description:"target temperature to stay below in F" default:"55"`
 	Templates string `long:"templates" description:"Specifies the folder where the templates are stored"`
 	Verbose []bool `short:"v" long:"verbose" description:"Show verbose debug information -v max of -vv"`
-	PumpUrl string `long:"pump" description:"Specifies the URL to call to start the pump" default:"http://192.168.149.80"`
+	PumpUrl string `long:"pump" description:"Specifies the URL to call to start the pump" default:"http://192.168.68.64"`
 }
 
   //-------------------------------------------------------------------------------------------------------------------//
