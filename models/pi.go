@@ -163,10 +163,9 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 					break
 				}
 
-				// pull the pin high
+				// set up the pin
 				pin := rpio.Pin(coolerRelayPin)
 				pin.Output()
-				pin.High()
 				coolerRunning = true
 
 				// first launch the pump, this runs its own cycles
@@ -174,7 +173,14 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 
 				// this is for the fan control, which we want running anytime it's too warm
 				for {
-					// now we loop for 1 minute at a time, checking for the temp to be lower
+					// now we loop checking for the temp to be in our target
+					
+					pin.High()	// start the fan
+					
+					waitForIt(time.Second * 30, running)
+
+					pin.Low() // turn the fan off
+
 					waitForIt(time.Minute, running)
 
 					tmp = CheckAirTemp(device)
