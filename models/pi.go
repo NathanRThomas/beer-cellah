@@ -77,14 +77,14 @@ func runPump (pumpUrl string) {
 		}
 		resp.Body.Close() // close the response body
 
-		// wait for 30 seconds
-		waitForIt (time.Second * 25, &coolerRunning) // wait for 30 seconds
+		// wait for 20 seconds
+		waitForIt (time.Second * 20, &coolerRunning) // wait for 20 seconds
 
 		// now turn the pump off
 		StopPump(pumpUrl)
 		
-		// now wait 10 minutes
-		waitForIt (time.Minute * 15, &coolerRunning)
+		// now wait 30 minutes
+		waitForIt (time.Minute * 30, &coolerRunning)
 	} // end of for loop
 }
 
@@ -177,11 +177,11 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 					
 					pin.High()	// start the fan
 					
-					waitForIt(time.Second * 30, running)
+					waitForIt(time.Second * 20, running)
 
 					pin.Low() // turn the fan off
 
-					waitForIt(time.Minute, running)
+					waitForIt(time.Minute * 3, running)
 
 					tmp = CheckAirTemp(device)
 
