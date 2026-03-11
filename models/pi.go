@@ -83,8 +83,8 @@ func runPump (pumpUrl string) {
 		// now turn the pump off
 		StopPump(pumpUrl)
 		
-		// now wait 30 minutes
-		waitForIt (time.Minute * 30, &coolerRunning)
+		// now wait some minutes
+		waitForIt (time.Minute * 25, &coolerRunning)
 	} // end of for loop
 }
 
@@ -139,7 +139,14 @@ func IsNight () bool {
 		return false
 	}
 	now := time.Now().In(loc)
-	return now.Hour() >= 20 || now.Hour() < 8 // 9pm to 7am
+	// see if it's the weekend
+	switch now.Weekday() {
+	case time.Friday, time.Saturday:
+		return now.Hour() >= 21 || now.Hour() <= 9 // 9pm to 9am
+	}
+
+	// school day
+	return now.Hour() >= 20 || now.Hour() <= 7 // 8pm to 7am
 }
 
 // monitors the temp to know when to run things
@@ -171,6 +178,8 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 				// first launch the pump, this runs its own cycles
 				go runPump (pumpUrl)
 
+				waitForIt(time.Second * 20, running) // wait for the pump to cool things
+
 				// this is for the fan control, which we want running anytime it's too warm
 				for {
 					// now we loop checking for the temp to be in our target
@@ -181,7 +190,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 
 					pin.Low() // turn the fan off
 
-					waitForIt(time.Minute * 3, running)
+					waitForIt(time.Minute * 4, running)
 
 					tmp = CheckAirTemp(device)
 
