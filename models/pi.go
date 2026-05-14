@@ -18,20 +18,23 @@ const coolerRelayPin	= 12
 
 var tempHistory []float32
 var coolingHistory []bool
+var nightHistory []bool
 var coolerRunning bool 
 
 func addTemp (t float64) {
 	if len(tempHistory) > 60 * 24 * 2 { // keeping about 48 hours of history
 		tempHistory = tempHistory[1:]
 		coolingHistory = coolingHistory[1:]
+		nightHistory = nightHistory[1:]
 	}
 
 	tempHistory = append (tempHistory, float32(t)) // i'm keeping these as 32 bit simply for the ram usage
 	coolingHistory = append (coolingHistory, coolerRunning) // just record if we happened to be running
+	nightHistory = append (nightHistory, IsNight()) // record whether we were "off" for night so duty can ignore it
 }
 
-func ReturnStats () (bool, []float32, []bool) {
-	return coolerRunning, tempHistory, coolingHistory
+func ReturnStats () (bool, []float32, []bool, []bool) {
+	return coolerRunning, tempHistory, coolingHistory, nightHistory
 }
 
 func waitForIt (dur time.Duration, running *bool) {

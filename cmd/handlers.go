@@ -30,7 +30,7 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	running, tempHistory, coolingHistory := models.ReturnStats()
+	running, tempHistory, coolingHistory, nightHistory := models.ReturnStats()
 
 	var data struct {
 		Running bool 
@@ -61,15 +61,20 @@ func (this *app) getStatus(w http.ResponseWriter, r *http.Request) {
 
 	data.Temps = template.JS(strings.Join(tmps, ","))
 
-	var cools float64
-	for _, t := range coolingHistory {
+	// duty cycle ignores samples taken at night since the cooler intentionally idles then
+	var cools, dayTotal float64
+	for i, t := range coolingHistory {
+		if i < len(nightHistory) && nightHistory[i] {
+			continue
+		}
+		dayTotal += 1
 		if t {
 			cools += 1
 		}
 	}
 
-	if len(coolingHistory) > 0 {
-		data.CoolingHistory = template.JS(fmt.Sprintf("%.1f", (cools / float64(len(coolingHistory))) * 100))
+	if dayTotal > 0 {
+		data.CoolingHistory = template.JS(fmt.Sprintf("%.1f", (cools / dayTotal) * 100))
 	} else {
 		data.CoolingHistory = template.JS("100")
 	}
