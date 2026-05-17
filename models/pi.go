@@ -87,7 +87,7 @@ func runPump (pumpUrl string) {
 		StopPump(pumpUrl)
 		
 		// now wait some minutes
-		waitForIt (time.Minute * 25, &coolerRunning)
+		waitForIt (time.Minute * 19, &coolerRunning)
 	} // end of for loop
 }
 
