@@ -136,6 +136,7 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 }
 
 func IsNight () bool {
+	return false
 	loc, err := time.LoadLocation("America/New_York")
 	if err != nil {
 		fmt.Println("error loading location: ", err)
@@ -193,7 +194,7 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 
 					pin.Low() // turn the fan off
 
-					waitForIt(time.Minute * 4, running)
+					waitForIt(time.Minute * 3, running)
 
 					tmp = CheckAirTemp(device)
 
