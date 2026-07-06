@@ -136,7 +136,6 @@ func MonitorButton (wg *sync.WaitGroup, running *bool) {
 }
 
 func IsNight () bool {
-	return false
 	loc, err := time.LoadLocation("America/New_York")
 	if err != nil {
 		fmt.Println("error loading location: ", err)
