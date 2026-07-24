@@ -143,6 +143,7 @@ func IsNight () bool {
 	}
 	now := time.Now().In(loc)
 	// see if it's the weekend
+	fmt.Println("checking IsNight", now.Weekday(), now.Hour())
 	switch now.Weekday() {
 	case time.Friday, time.Saturday:
 		return now.Hour() >= 21 || now.Hour() <= 9 // 9pm to 9am
