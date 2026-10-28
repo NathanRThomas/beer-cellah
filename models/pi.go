@@ -188,10 +188,12 @@ func MonitorTemp (wg *sync.WaitGroup, running *bool, c <-chan time.Time, target 
 					// now we loop checking for the temp to be in our target
 					
 					pin.High()	// start the fan
+					fmt.Println("running fan", tmp)
 					
 					waitForIt(time.Second * 20, running)
 
 					pin.Low() // turn the fan off
+					fmt.Println("stopping fan")
 
 					waitForIt(time.Minute * 3, running)
 
